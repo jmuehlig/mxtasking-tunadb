@@ -1,0 +1,13 @@
+set(DB_IO_SRC
+    src/db/io/query_result.cpp
+    src/db/io/cli/client_console.cpp
+    src/db/io/cli/serialized_plan.cpp
+    src/db/io/cli/single_command_client.cpp
+    src/db/io/cli/benchmark_client.cpp
+    src/db/io/web/web_client.cpp
+    src/db/io/task/load_file_task.cpp
+    src/db/io/task/restore_database_task.cpp
+    src/db/io/task/planning_task.cpp
+    src/db/io/task/send_result_task.cpp
+    src/db/io/abstract_client.cpp
+)

@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" type="image/jpg" href="img/favicon.ico"/>
+    <link rel="stylesheet" href="css/bulma.min.css" />
+    <link rel="stylesheet" href="css/bulma-tooltip.min.css" />
+    <link rel="stylesheet" href="css/bulma-slider.min.css" />
+    <link rel="stylesheet" href="css/tunadb.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/d3.v5.min.js"></script>
+    <script src="https://unpkg.com/@hpcc-js/wasm@0.3.11/dist/index.min.js"></script>
+    <script src="js/d3-graphviz.min.js"></script>
+    <script src="https://kit.fontawesome.com/c020b52aa8.js" crossorigin="anonymous"></script>
+    <script src="js/clickout-event.js"></script>
+    <script src="js/bulma-slider.min.js"></script>
+    <title>tunaDB</title>
+</head>
+<body>
+    <div id="tunadb">
+        <!-- NAVIGATION BAR -->
+        <nav class="navbar" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="#">
+                    <img src="img/logo.png" width="80" height="36" />
+                </a>
+            </div>
+        </nav>
+        <!-- END NAVIGATION BAR -->
+
+        <div class="columns pt-2">
+            <!-- BODY -->
+            <div class="column is-10 is-offset-1 pr-6">
+                <div class="columns is-multiline">
+
+                    <!-- Clear, Tables, Queries -->
+                    <div class="column is-12">
+                        <div class="columns">
+                            <!-- Queries -->
+                            <div class="column is-2">
+                                <div class="dropdown has-text-left is-fullwidth" v-bind:class="{'is-active' : is_queries_dropdown_active}">
+                                    <div class="dropdown-trigger">
+                                        <button v-on:click="is_queries_dropdown_active = !is_queries_dropdown_active" v-on:clickout="is_queries_dropdown_active = false" class="button is-info is-light is-hovered is-outlined is-small has-text-left" aria-haspopup="true" aria-controls="dropdown-menu" :disabled="queries.length == 0">
+                                            <span><i class="fas fa-file-alt" aria-hidden="true"></i>&nbsp; Insert Query</span>
+                                            <span class="icon is-small">
+                                                <i class="fas" v-bind:class="{'fa-angle-up' : is_queries_dropdown_active, 'fa-angle-down': !is_queries_dropdown_active}" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu" role="menu">
+                                        <div class="dropdown-content" id="queries-content">
+                                            <a v-for="query in queries" class="dropdown-item" v-on:click="set_query(query.query)">
+                                                {{ query.name }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tables -->
+                            <div class="column is-2">
+                                <div class="dropdown has-text-left is-fullwidth" v-bind:class="{'is-active' : is_tables_dropdown_active}">
+                                    <div class="dropdown-trigger">
+                                        <button v-on:click="is_tables_dropdown_active = !is_tables_dropdown_active" v-on:clickout="is_tables_dropdown_active = false" class="button is-info is-light is-hovered is-outlined is-small has-text-left" aria-haspopup="true" aria-controls="dropdown-menu" :disabled="tables.length == 0">
+                                            <span><i class="fas fa-database" aria-hidden="true"></i>&nbsp; Show Table</span>
+                                            <span class="icon is-small">
+                                                <i class="fas" v-bind:class="{'fa-angle-up' : is_tables_dropdown_active, 'fa-angle-down': !is_tables_dropdown_active}" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu" role="menu">
+                                        <div class="dropdown-content">
+                                            <a v-for="table in tables" class="dropdown-item" v-on:click="show_table(table)">
+                                                {{ table }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cores -->
+                            <div class="column is-2">
+                                <div class="dropdown has-text-left is-fullwidth" v-bind:class="{'is-active' : is_cores_dropdown_active}">
+                                    <div class="dropdown-trigger">
+                                        <button v-on:click="is_cores_dropdown_active = !is_cores_dropdown_active" v-on:clickout="is_cores_dropdown_active = false" class="button is-success is-light is-hovered is-outlined is-small has-text-left" aria-haspopup="true" aria-controls="dropdown-menu" :disabled="count_cores_available == 0">
+                                            <span class="has-text-weight-normal">
+                                                <i class="fas fa-server" aria-hidden="true"></i>&nbsp; {{ count_cores }} / {{ count_cores_available }} Cores
+                                            </span>
+                                            <span class="icon is-small">
+                                                <i class="fas"  v-bind:class="{'fa-angle-up' : is_cores_dropdown_active, 'fa-angle-down': !is_cores_dropdown_active}" aria-hidden="true"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-menu" role="menu">
+                                        <div class="dropdown-content">
+                                            <a v-for="core in count_cores_available" v-on:click="set_cores(core)" class="dropdown-item">
+                                                {{ core }} / {{ count_cores_available }} Cores &nbsp;
+                                                <i v-if="core == count_cores" class="fas fa-check" aria-hidden="true"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Clear -->
+                            <div class="column is-6 has-text-right">
+                                <a class="button is-danger is-small has-text-left has-tooltip-bottom" data-tooltip="Reset the Query and Output" v-on:click="clear()">
+                                    <i class="fa-solid fa-trash"></i>&nbsp;Reset
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SQL Text Box -->
+                    <div class="column is-12 pt-0">
+                        <div class="field">
+                            <div class="control">
+                                <textarea style="background: #fefefe;" v-model="query" class="textarea" rows="10" placeholder="Type your query here..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Execute, Explain -->
+                    <div class="column is-5 pt-0 pb-0 mb-0 buttons are-medium">
+                        <button class="button is-success" data-tooltip="Run the Query" v-on:click="execute_query()" :disabled="query == ''"><i class="fa-solid fa-paper-plane"></i></button>
+                        <button class="button is-info" data-tooltip="Show the Query Plan" v-on:click="explain_plan()" :disabled="query == ''"><i class="fa-solid fa-diagram-project"></i></button>
+                        <button class="button is-info" data-tooltip="Show the Task Graph" v-on:click="explain_task_graph()" :disabled="query == ''"><i class="fa-solid fa-code-branch"></i></button>
+                        <button class="button is-info" data-tooltip="Show the Dataflow within Task Graph" v-on:click="explain_data_flow_graph()" :disabled="query == ''"><i class="fa-solid fa-arrow-down-wide-short"></i></button>
+                        <button class="button is-link" data-tooltip="Show the generated FlounderIR" v-on:click="explain_flounder()" :disabled="query == ''"><i class="fa-solid fa-code"></i></button>
+                        <button class="button is-link" data-tooltip="Show the compiled Assembly Code" v-on:click="explain_assembly()" :disabled="query == ''"><i class="fa-solid fa-file-code"></i></button>
+                    </div>
+
+                    <!-- Analyze -->
+                    <div class="column is-7 pt-0 pb-0 mb-0 buttons are-medium has-text-right">
+                        <button class="button is-success" data-tooltip="Execute and Show Performance Counter" v-on:click="explain_performance()" :disabled="query == ''"><i class="fa-solid fa-microchip"></i></button>
+                        <button class="button is-success" data-tooltip="Execute and Show Node Execution Times" v-on:click="explain_times()" :disabled="query == ''"><i class="fa-solid fa-clock"></i></button>
+                        <button class="button is-success" data-tooltip="Execute and Profile Query using Perf Sampling" v-on:click="sample(sample_type)" :disabled="query == ''"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <div class="select mt-0 is-medium">
+                            <select v-model="sample_level">
+                                <option value="assembly">Assembly</option>
+                                <option value="operators">Operators</option>
+                                <option value="memory">Memory</option>
+                                <option value="historical memory">Memory Traces</option>
+                            </select>
+                        </div>
+                        <div class="select mt-0 is-medium">
+                            <select v-model="sample_type">
+                                <option value="cycles">Cycles</option>
+                                <option value="instructions">Instructions</option>
+                                <option value="cache misses">Cache Misses</option>
+                                <option value="cache references">Cache References</option>
+                                <option value="stalls mem any">Stalls Mem Any</option>
+                                <option value="stalls l1d miss">Stalls L1D Miss</option>
+                                <option value="stalls l2 miss">Stalls L2 Miss</option>
+                                <option value="stalls l3 miss">Stalls L3 Miss</option>
+                                <option value="cycles L3 miss">Cycles L3 Miss</option>
+                                <option value="L3 miss remote">L3 Miss Remote</option>
+                                <option value="mem loads">Mem Loads</option>
+                                <option value="mem stores">Mem Stores</option>
+                                <option value="mem load l1 miss">Mem Load L1 Miss</option>
+                                <option value="mem load l2 miss">Mem Load L2 Miss</option>
+                                <option value="mem load l3 miss">Mem Load L3 Miss</option>
+                                <option value="fb full">Fill Buffer Full</option>
+                                <option value="load hit L1D fb">Load Hit L1D FB</option>
+                                <option value="dtlb miss">DTLB Miss</option>
+                                <option value="branches">Branches</option>
+                                <option value="branch misses">Branch Misses</option>
+                                <option value="baclears any">BAClears Any</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Compile Config -->
+                    <div class="column is-10 has-text-right pt-0 mt-0">
+                    </div>
+                    <div class="column is-2 has-text-right pt-0 mt-0">
+                        <div class="field">
+                            <label class="label is-small">Sample Frequency</label>
+                            <div class="control has-icons-left">
+                                <div class="select is-small is-fullwidth">
+                                    <select v-model="sample_frequency">
+                                        <option value="10000">0.1 ms</option>
+                                        <option value="5000">0.5 ms</option>
+                                        <option value="1000">1 ms</option>
+                                        <option value="500">2 ms</option>
+                                        <option value="200">5 ms</option>
+                                        <option value="100">10 ms</option>
+                                        <option value="50">50 ms</option>
+                                        <option value="10">100 ms</option>
+                                    </select>
+                                </div>
+                                <div class="icon is-left">
+                                    <i class="fa-solid fa-clock"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification -->
+                    <div class="column is-12">
+                        <!-- Notification -->
+                        <div class="notification" v-bind:class="[is_error ? 'is-danger' : 'is-info']" v-if="notification_text != ''">
+                            {{ notification_text }}
+                        </div>
+                    </div>
+
+                    <!-- Loading -->
+                    <div class="column is-12" v-if="is_loading">
+                        <div class="has-text-centered">
+                            <div class="box">
+                                <img src="img/loading.gif" width="64px" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Server Answer -->
+                    <div class="column is-12" v-bind:class="resultClass">
+                        <!-- Records -->
+                        <div class="card" v-if="schema.length > 0">
+                            <header class="card-header is-success notification p-0 mb-0">
+                                <p class="card-header-title has-text-white">
+                                    Query Result
+                                </p>
+                            </header>
+                            <div class="card-content">
+                                <table class="table is-fullwidth">
+                                    <thead class="has-text-weight-bold">
+                                    <tr>
+                                        <td v-for="column in schema">
+                                            {{ column.name }}
+                                            <span class="is-size-7 has-text-weight-normal" v-if="column.type != ''">
+                                                <br />
+                                                {{ column.type }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-for="record in records.slice(current_record_page * records_per_page, (current_record_page + 1) * records_per_page)">
+                                        <td v-for="cell in record">{{ cell }}</td>
+                                    </tr>
+                                    </tbody>
+<!--                                    <tfoot>-->
+<!--                                    <tr>-->
+<!--                                        <td :colspan="schema.length" class="has-text-centered">-->
+<!--                                        <span class="is-size-7">-->
+<!--                                            {{ records_per_page }} records per page. Showing records #{{ records_per_page * current_record_page + 1}} - #{{ Math.min(records_per_page * (current_record_page + 1), records.length) }}.-->
+<!--                                        </span>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                    </tfoot>-->
+                                </table>
+                            </div>
+                            <footer class="card-footer" v-if="record_pages > 1">
+                                <div class="columns pl-6 pr-6">
+                                    <div class="column is-12 has-text-centered">
+                                        <nav class="pagination" role="navigation" aria-label="pagination">
+                                            <ul class="pagination-list">
+                                                <li><a class="pagination-link" v-on:click="current_record_page = 0" v-if="current_record_page > 0">1</a></li>
+                                                <li><span class="pagination-ellipsis" v-if="current_record_page > 2">&hellip;</span></li>
+                                                <li><a class="pagination-link" v-on:click="current_record_page = current_record_page - 1" v-if="current_record_page > 1">{{ current_record_page }}</a></li>
+                                                <li><a class="pagination-link is-current" aria-current="page">{{ current_record_page + 1 }}</a></li>
+                                                <li><a class="pagination-link" v-on:click="current_record_page = current_record_page + 1" v-if="current_record_page < record_pages - 2">{{ current_record_page + 2 }}</a></li>
+                                                <li><span class="pagination-ellipsis" v-if="current_record_page < record_pages - 3">&hellip;</span></li>
+                                                <li><a class="pagination-link" v-on:click="current_record_page = record_pages - 1" v-if="current_record_page < record_pages - 1">{{ record_pages }}</a></li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </footer>
+                        </div>
+
+                        <!-- Plan -->
+                        <div class="card" v-bind:class="{'is-hidden': plan == ''}">
+                            <header class="card-header is-info notification p-0 mb-0">
+                                <p class="card-header-title has-text-white" id="plan-title">
+                                </p>
+                            </header>
+                            <div class="card-content">
+                                <div id="plan" class="is-fullwidth has-text-centered"></div>
+                            </div>
+                        </div>
+
+                        <!-- Code -->
+                        <div class="is-fullwidth" v-if="programs.length > 0">
+                            <div class="columns is-multiline">
+                                <div class="column is-12" v-for="program in programs">
+                                    <div class="card" v-for="(code, name) in program.code">
+                                        <header class="card-header notification is-link p-0 mb-0">
+                                            <p class="card-header-title has-text-white">
+                                                {{ program.name }}::{{ name }}()
+                                            </p>
+
+                                            <span class="tag mr-2 mt-3" v-for="(counter, info) in program_infos[program.name][name]">{{ counter }} {{ info }}</span>
+                                        </header>
+                                        <div class="card-content p-0">
+                                            <table class="code is-fullwidth">
+                                                <tr v-for="line in code">
+                                                    <td>{{ line }}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sampled assembly code -->
+                        <div class="is-fullwidth" v-if="sampled_programs.length > 0">
+                            <div class="columns is-multiline">
+
+                                <div class="column is-12 mb-1" v-for="program in sampled_programs">
+                                    <div class="card" v-for="(code, name) in program.code">
+                                        <header class="card-header notification is-link p-0 mb-0">
+                                            <p class="card-header-title has-text-white">
+                                <span class="tag is-info is-light mr-3">
+                                    {{ code.count }}
+                                </span>
+                                                <span class="tag is-info is-light mr-3">
+                                    {{ code.percentage.toFixed(2) }} %
+                                </span>
+
+                                                {{ program.name }}::{{ name }}()
+                                            </p>
+                                        </header>
+                                        <div class="card-content p-0">
+                                            <table class="code is-fullwidth">
+                                                <tr v-for="line in code.lines">
+                                                    <td :class="{ 'percentage-danger': line.percentage > 5, 'percentage-warning': line.percentage > 2 && line.percentage <=5 }" class="percentage">
+                                        <span v-if="line.count > 0">
+                                            {{ line.count }}
+                                        </span>
+                                                    </td>
+                                                    <td :class="{ 'percentage-danger': line.percentage > 5, 'percentage-warning': line.percentage > 2 && line.percentage <=5 }" class="percentage">
+                                        <span v-if="line.percentage > 0">
+                                            {{ line.percentage.toFixed(2) }}%
+                                        </span>
+                                                    </td>
+                                                    <td>{{ line.line }}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Samples operators -->
+                        <div class="is-fullwidth" v-if="sampled_operators.length > 0">
+                            <div class="columns is-multiline">
+                                <div class="column is-12 mb-1" v-for="program in sampled_operators">
+                                    <div class="card" v-for="(contexts, name) in program.contexts">
+                                        <header class="card-header notification is-link p-0 mb-0">
+                                            <p class="card-header-title has-text-white">
+                                <span class="tag is-info is-light mr-3">
+                                    {{ contexts.count }}
+                                </span>
+                                                <span class="tag is-info is-light mr-3">
+                                    {{ contexts.percentage.toFixed(2) }} %
+                                </span>
+
+                                                {{ program.name }}::{{ name }}()
+                                            </p>
+                                        </header>
+                                        <div class="card-content p-0">
+                                            <table class="operators is-fullwidth">
+                                                <tr v-for="operator in contexts.operators">
+                                                    <td :class="{ 'percentage-danger': operator.percentage > 5, 'percentage-warning': operator.percentage > 2 && operator.percentage <=5 }" class="percentage">
+                                                        {{ operator.count }}
+                                                    </td>
+                                                    <td :class="{ 'percentage-danger': operator.percentage > 5, 'percentage-warning': operator.percentage > 2 && operator.percentage <=5 }" class="percentage">
+                                                        {{ operator.percentage.toFixed(2) }}%
+                                                    </td>
+                                                    <td>{{ operator.operator }}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Samples tiles -->
+                        <div class="is-fullwidth" v-if="sampled_tiles.length > 0">
+                            <div class="columns is-multiline">
+                                <div class="column is-12 mb-1" v-for="tile in sampled_tiles">
+                                    <div class="card">
+                                        <header class="card-header notification is-link p-0 mb-0">
+                                            <p class="card-header-title has-text-white">
+                                                {{ tile.name }}
+                                            </p>
+                                        </header>
+                                        <div class="card-content p-0">
+                                            <table class="operators is-fullwidth">
+                                                <tr>
+                                                    <th colspan="2">Column</th>
+                                                    <th>Cache Line</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>&nbsp;</td>
+                                                    <td>Header</td>
+                                                    <td>{{ tile.samples }}</td>
+                                                </tr>
+                                                <tr v-for="column in tile.columns">
+                                                    <td>{{ column.id }}</td>
+                                                    <td>{{ column.name }}</td>
+                                                    <td>{{ column.samples }}</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Samples addresses -->
+                        <div class="is-fullwidth" v-if="sampled_addresses.hasOwnProperty('samples') && sampled_addresses.samples.length > 0">
+                            <div class="columns is-multiline">
+                                <div class="column is-12 mb-1">
+                                    <div class="card">
+                                        <header class="card-header notification is-link p-0 mb-0">
+                                            <p class="card-header-title has-text-white">
+                                                Sampled Adresses
+                                                <span class="tag is-info ml-1 mr-1">{{ sampled_addresses.samples.length }} Items</span>
+                                                <button class="button ml-6 is-success is-small" v-on:click="copy_memory_traces()">Copy to Clipboard</button>
+                                            </p>
+                                        </header>
+                                        <div class="card-content p-0">
+                                            <pre>{{ sampled_addresses }}</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DRAM Bandwidth -->
+                        <div class="is-fullwidth has-text-centered" v-bind:class="{'is-hidden': bandwidth.length < 1}">
+                            <div id="dram-bandwidth"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    var tunadb = new Vue({
+        el: '#tunadb',
+        data: {
+            query: '',
+            queries: [],
+            tables: [],
+
+            is_loading: false,
+            schema: [],
+            records: [],
+            record_pages: 1,
+            current_record_page: 0,
+            records_per_page: 50,
+            is_show_all_records: false,
+            programs: [],
+            program_infos: [],
+            sampled_programs: [],
+            sampled_operators: [],
+            sampled_tiles: [],
+            sampled_addresses: {},
+            sample_frequency: 1000,
+            plan: '',
+            task_traces: {},
+            bandwidth: [],
+
+            notification_text: '',
+            is_error: false,
+
+            is_tables_dropdown_active: false,
+            is_queries_dropdown_active: false,
+            is_cores_dropdown_active: false,
+
+            count_cores: 0,
+            count_cores_available: 0,
+
+            sample_level: 'assembly',
+            sample_type: 'cycles'
+        },
+        methods: {
+            notification: function(text, is_error = false) {
+                this.notification_text = text;
+                this.is_error = is_error;
+            },
+
+            clear: function(clear_query = true) {
+                this.notification('');
+
+                this.schema = []
+                this.records = [];
+                this.record_pages = 1;
+                this.record_page = 0;
+                this.is_show_all_records = false;
+                this.programs = [];
+                this.program_infos = [];
+                this.sampled_programs = [];
+                this.sampled_operators = [];
+                this.sampled_tiles = [];
+                this.sampled_addresses = {};
+                this.task_traces = {};
+                this.plan = ''
+                this.bandwidth = []
+
+                this.is_tables_dropdown_active = false;
+                this.is_queries_dropdown_active = false;
+
+                if (clear_query) {
+                    this.query = '';
+                    this.is_loading = false;
+                    this.sample_level = 'assembly';
+                    this.sample_type = 'cycles';
+                    this.sample_frequency = 1000;
+                }
+            },
+
+            set_query: function(query) {
+                this.is_queries_dropdown_active = false;
+                this.query = query;
+            },
+
+            send_query: function(query) {
+                this.clear(false);
+
+                this.is_loading = true;
+
+                $.post("query", query).done(data => {
+                    if (data["type"] == "success")
+                    {
+                        this.notification("Query finished successfully.");
+                    }
+                    else if (data["type"] == "error")
+                    {
+                        this.notification(data["error"], true);
+                    }
+                    else if (data["type"] == "data")
+                    {
+                        this.schema = data["result"]["schema"];
+                        if (data["result"].hasOwnProperty("rows"))
+                        {
+                            this.records = data["result"]["rows"];
+                            this.record_pages = Math.ceil(this.records.length / this.records_per_page);
+                        }
+                        this.notification("Fetched " + data["count-rows"] + " row" + (data["count-rows"] != 1 ? "s" : "")  + " in " + data["ms"] + " ms.");
+                    }
+                    else if (data["type"] == "performance")
+                    {
+                        this.records = []
+                        for (let i = 0; i < data["data"].length; i++) {
+                            let row = data["data"][i];
+                            this.records.push([row.name, this.nice_number(row.result)]);
+                        }
+                        this.schema = [{"name": "Item", "type": ""}, {"name": "Result", "type": ""}];
+                    }
+                    else if (data["type"] == "times")
+                    {
+                        this.records = []
+                        for (let i = 0; i < data["data"].length; i++) {
+                            let row = data["data"][i];
+                            this.records.push([row.node, this.nice_number(row.time)]);
+                        }
+                        this.schema = [{"name": "Node", "type": ""}, {"name": "Time (ms)", "type": ""}];
+
+                        this.notification("Fetched " + data["count-rows"] + " row" + (data["count-rows"] != 1 ? "s" : "")  + " in " + data["ms"] + " ms.");
+                    }
+                    else if (data["type"] == "plan" || data["type"] == "task-graph" || data["type"] == "data-flow-graph")
+                    {
+                        this.plan = data["dot"];
+                        d3.select("#plan")
+                            .graphviz()
+                            .width($("#plan").clientWidth).scale(0.75)
+                            .renderDot(this.plan);
+
+                        if (data["type"] == "plan")
+                        {
+                            this.notification("Created query plan in " + data["ms"] + " ms.");
+                            $("#plan-title").text("Query Plan");
+                        }
+                        else if (data["type"] == "task-graph")
+                        {
+                            this.notification("Created task graph in " + data["ms"] + " ms.");
+                            $("#plan-title").text("Task Graph");
+                        }
+                        else if (data["type"] == "data-flow-graph")
+                        {
+                            this.notification("Fetched " + data["count-rows"] + " row" + (data["count-rows"] != 1 ? "s" : "") + " in " + data["ms"] + " ms.");
+                            $("#plan-title").text("Task Graph");
+                        }
+                    }
+                    else if (data["type"] == "task-trace")
+                    {
+                        this.task_traces = data["traces"];
+                        this.notification("Fetched " + data["count-rows"] + " row" + (data["count-rows"] != 1 ? "s" : "") + " in " + data["ms"] + " ms.");
+                    }
+                    else if (data["type"] == "flounder-code" || data["type"] == "assembly-code")
+                    {
+                        this.programs = data["programs"];
+                        this.program_infos = this.analyze_programs(this.programs);
+                        let text = "Generated flounder";
+                        if (data["type"] == "assembly-code")
+                        {
+                            text += " and compiled to assembly"
+                        }
+                        this.notification(text + " in " + data["ms"] + " ms.");
+                    }
+                    else if (data["type"] == "sampled-assembly")
+                    {
+                        this.sampled_programs = data["sampled_programs"];
+                        this.notification("Fetched " + data["count-rows"] + " row" + (data["count-rows"] != 1 ? "s" : "")  + " in " + data["ms"] + " ms. Recorded " + data["count-samples"] + " samples (" + data["percentage"].toFixed(2) + "% in compiled code).");
+                    }
+                    else if (data["type"] == "sampled-operators")
+                    {
+                        this.sampled_operators = data["sampled_operators"];
+                        this.notification("Fetched " + data["count-rows"] + " row" + (data["count-rows"] != 1 ? "s" : "")  + " in " + data["ms"] + " ms. Recorded " + data["count-samples"] + " samples (" + data["percentage"].toFixed(2) + "% in compiled code).");
+                    }
+                    else if (data["type"] == "sampled-memory")
+                    {
+                        this.sampled_tiles = data["sampled_tiles"]["tiles"];
+                        this.notification("Fetched " + data["count-rows"] + " row" + (data["count-rows"] != 1 ? "s" : "")  + " in " + data["ms"] + " ms. Recorded " + data["sampled_tiles"]["count"] + " samples.");
+                    }
+                    else if (data["type"] == "sampled-memory-history")
+                    {
+                        this.sampled_addresses = data["samples"];
+                        this.notification("Fetched " + data["count-rows"] + " row" + (data["count-rows"] != 1 ? "s" : "")  + " in " + data["ms"] + " ms.");
+                    }
+                    else if (data["type"] == "dram-bandwidth")
+                    {
+                        let read_bandwidth = {x: [], y: [], type: 'scatter', name: 'read GB/s', line: { color: '#2a9d8f'}};
+                        let write_bandwidth = {x: [], y: [], type: 'scatter', name: 'write GB/s', line: { color: '#e76f51'}};
+                        let sum_bandwidth = {x: [], y: [], type: 'scatter', name: 'total GB/s', line: { color: '#264653'}};
+
+                        let max_bandwidth = 0;
+                        let bandwidth = data["data"]["bandwidth"];
+                        for(let i = 0; i < bandwidth.length; i++)
+                        {
+                            let timestamp = bandwidth[i]["timestamp"] / 1000000;
+
+                            read_bandwidth.x.push(timestamp);
+                            read_bandwidth.y.push(bandwidth[i]["read_gb_s"]);
+
+                            write_bandwidth.x.push(timestamp);
+                            write_bandwidth.y.push(bandwidth[i]["write_gb_s"]);
+
+                            sum_bandwidth.x.push(timestamp);
+                            sum_bandwidth.y.push(bandwidth[i]["gb_s"]);
+
+                            max_bandwidth = Math.max(max_bandwidth, bandwidth[i]["gb_s"]);
+                        }
+
+                        this.bandwidth = [read_bandwidth, write_bandwidth, sum_bandwidth];
+
+                        let annotations = [];
+                        let events = data["data"]["events"];
+                        for(let i = 0; i < events.length; i++)
+                        {
+                            let multiplier = 1;
+                            if (i % 4 == 0)
+                            {
+                                multiplier = 1.15;
+                            }
+                            else if (i % 3 == 0)
+                            {
+                                multiplier = 1.1;
+                            }
+                            else if (i % 2 == 0)
+                            {
+                                multiplier = 1.05;
+                            }
+
+                            let offset = max_bandwidth * multiplier;
+
+                            let timestamp = events[i]["timestamp"] / 1000000;
+                            annotations.push({
+                               x: timestamp,
+                               y: 0,
+                               xref: 'x',
+                               yref: 'y',
+                               text: events[i]["name"],
+                               ayref: 'y',
+                               ay: offset,
+                               ax: 0,
+                               arrowhead: 0
+                            });
+                        }
+
+                        let layout = {
+                            title: 'DRAM bandwidth',
+                            xaxis: {
+                                title: 'Time (ms)'
+                            },
+                            yaxis: {
+                                title: 'bandwidth (GB/s)'
+                            },
+                            annotations: annotations
+                        };
+
+                        Plotly.newPlot('dram-bandwidth', this.bandwidth, layout);
+                        this.notification("Fetched " + data["count-rows"] + " row" + (data["count-rows"] != 1 ? "s" : "") + " in " + data["ms"] + " ms.");
+                    }
+
+                    this.is_loading = false;
+                });
+            },
+
+            execute_query: function () {
+                this.send_query(this.query);
+            },
+
+            explain_plan: function() {
+                this.explain("");
+            },
+
+            explain_task_graph: function() {
+                this.explain("task graph");
+            },
+
+            explain_data_flow_graph: function() {
+                this.explain("data flow");
+            },
+
+            explain_performance: function() {
+                this.explain("performance");
+            },
+
+            explain_times: function() {
+                this.explain("times");
+            },
+
+            explain_task_traces: function() {
+                this.explain("task traces");
+            },
+
+            explain_dram_bandwidth: function() {
+                this.explain("dram bandwidth");
+            },
+
+            explain_flounder: function() {
+                this.explain("flounder");
+            },
+
+            explain_assembly: function() {
+                this.explain("assembly");
+            },
+
+            explain: function(what) {
+                what = "explain " + what;
+                let query = this.query;
+                if (query.toLowerCase().startsWith(what) == false)
+                {
+                    query = what + " " + query;
+                }
+                this.send_query(query);
+            },
+
+            sample: function(counter) {
+                let query = "sample " + this.sample_level + " " + counter + " with freq " + this.sample_frequency + " " + this.query;
+                this.send_query(query);
+            },
+
+            show_table: function(table) {
+                this.send_query(".table " + table);
+            },
+
+            set_cores: function(count_cores) {
+                this.send_query(".set cores " + count_cores);
+                this.count_cores = count_cores;
+            },
+
+            copy_memory_traces: function() {
+                let traces = JSON.stringify(this.sampled_addresses);
+                console.log(traces);
+
+                var copy_textbox = document.createElement("textarea");
+                document.body.appendChild(copy_textbox);
+                copy_textbox.value = traces;
+                copy_textbox.select();
+                document.execCommand("copy");
+                document.body.removeChild(copy_textbox);
+            },
+
+            nice_number: function(number)
+            {
+                if (isNaN(number))
+                {
+                    return number;
+                }
+
+                if (number > 1000000)
+                {
+                    return "" + (number / 1000000).toFixed(3) + " M";
+                }
+
+                if (number > 1000)
+                {
+                    return "" + (number / 1000).toFixed(3) + " k";
+                }
+
+                if (number != Math.floor(number))
+                {
+                    return Number(number).toFixed(3);
+                }
+
+                return number;
+            },
+
+            analyze_programs: function(programs) {
+
+                let infos = {};
+
+                programs.forEach(function(program) {
+                    infos[program.name] = {};
+
+                    for (const name in program["code"])
+                    {
+                        infos[program.name][name] = {"instructions": 0, "branches": 0, "spill-loads": 0, "spill-writes": 0};
+
+                        for (const line_nr in program["code"][name])
+                        {
+                            let line = program["code"][name][line_nr];
+                            if (line.startsWith(';') == false && line.startsWith('@') == false && line.match(/^[^;]+:/) == null)
+                            {
+                                infos[program.name][name]["instructions"] += 1
+
+                                if(line.match("je") != null || line.match("jne") != null || line.match("jle") != null || line.match("jl") != null || line.match("jge") != null || line.match("jg") != null || line.match("jb") != null || line.match("jbe") != null || line.match("ja") != null || line.match("jae") != null || line.match("jmp") != null)
+                                {
+                                    infos[program.name][name]["branches"] += 1
+                                }
+                                else if(line.includes("RegSpill: Load"))
+                                {
+                                    infos[program.name][name]["spill-loads"] += 1
+                                }
+                                else if (line.includes("RegSpill: Flush"))
+                                {
+                                    infos[program.name][name]["spill-writes"] += 1
+                                }
+                            }
+                        }
+                    }
+                });
+
+                return infos;
+            },
+        },
+
+        computed: {
+            resultClass: function() {
+                return {
+                    'is-hidden': this.schema.length == 0 && this.plan == '' && this.task_traces.length == 0 && this.programs.length == 0 && this.sampled_programs.length == 0 && this.sampled_operators.length == 0 && this.sampled_tiles.length == 0 && this.sampled_addresses.samples.length == 0 && this.bandwidth.length == 0
+                }
+            },
+        },
+
+        mounted: function () {
+            $.getJSON("queries.json", data => {
+                this.queries = data;
+            });
+
+            $.post("query", ".tables").done(data => {
+                if (data["type"] == "data")
+                {
+                    let rows = data["result"]["rows"];
+                    for(let i = 0; i < rows.length; i++)
+                    {
+                        this.tables.push(rows[i][0]);
+                    }
+                }
+            });
+
+            $.post("query", ".config").done(data => {
+                if (data["type"] == "config")
+                {
+                    this.count_cores = data["cores"];
+                    this.count_cores_available = data["cores-available"];
+                }
+            });
+        }
+    });
+</script>
+
+</html>

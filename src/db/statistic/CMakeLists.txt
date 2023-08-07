@@ -1,0 +1,1 @@
+set(DB_STATISTIC_SRC src/db/statistic/equi_depth_histogram.cpp)

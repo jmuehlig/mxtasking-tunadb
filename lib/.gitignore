@@ -1,0 +1,15 @@
+*.so
+*.a
+argparse
+fmt
+httplib
+ittapi/
+json/
+static-vector/
+hyperloglog-hip/
+count/
+xxhash/
+spdlog/
+tsl-robin-map/
+linenoise/
+asmjit/

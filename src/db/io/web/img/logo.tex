@@ -1,0 +1,46 @@
+\documentclass[crop,tikz]{standalone}
+\usepackage{relsize}
+\usepackage{tikz}
+\begin{document}
+\begin{tikzpicture}
+	\tikzstyle{bigcircle} = [circle,line width=2mm,draw, minimum height=50mm];
+	\tikzstyle{smallcircle} = [circle, fill=black, minimum height=10mm];
+	\tikzstyle{chipbase} = [fill=black, minimum height=21mm, minimum width=21mm];
+	\tikzstyle{chipinner} = [draw=white,minimum height=12mm,minimum width=12mm, line width=2mm];
+	\tikzstyle{chipouter} = [fill=black,minimum height=5mm,minimum width=3mm];
+	\tikzstyle{label} = [align=center, font=\fontsize{90}{58}\sffamily\bfseries];
+	
+
+  \node[bigcircle] (circle) at (0,0) { };
+  \node[smallcircle] (small0) at (circle.north) { };
+  \node[smallcircle] (small1) at (circle.east) { };
+  \node[smallcircle] (small2) at (circle.south) { };
+  \node[smallcircle] (small3) at (circle.west) { };
+  
+  \node[chipbase] (chip) at (circle.center) { };
+  \node[chipinner] at (chip.center) { };
+  
+  % Top
+  \node[chipouter] at ([yshift=2mm]chip.north) { };
+  \node[chipouter] at ([xshift=-6mm,yshift=2mm]chip.north) { };
+  \node[chipouter] at ([xshift=6mm,yshift=2mm]chip.north) { };
+  
+  % Bottom
+  \node[chipouter] at ([yshift=-2mm]chip.south) { };
+  \node[chipouter] at ([xshift=-6mm,yshift=-2mm]chip.south) { };
+  \node[chipouter] at ([xshift=6mm,yshift=-2mm]chip.south) { };
+  
+  % Left
+  \node[chipouter,rotate=90] at ([xshift=-2mm]chip.west) { };
+  \node[chipouter,rotate=90] at ([yshift=-6mm,xshift=-2mm]chip.west) { };
+  \node[chipouter,rotate=90] at ([yshift=6mm,xshift=-2mm]chip.west) { };
+  
+  % Right
+  \node[chipouter,rotate=-90] at ([xshift=2mm]chip.east) { };
+  \node[chipouter,rotate=-90] at ([yshift=-6mm,xshift=2mm]chip.east) { };
+  \node[chipouter,rotate=-90] at ([yshift=6mm,xshift=2mm]chip.east) { };
+  
+  % Text
+  \node[label] at ([xshift=70mm]circle.east) { tuna db };
+\end{tikzpicture}
+\end{document}

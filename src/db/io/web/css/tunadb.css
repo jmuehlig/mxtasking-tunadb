@@ -1,0 +1,84 @@
+body
+{
+    min-height: 100%;
+    background: #f8f9fa;
+}
+
+#tunadb nav.navbar
+{
+    background: #e9ecef;
+}
+
+.dropdown.is-fullwidth {
+    display: flex;
+}
+
+.dropdown.is-fullwidth i.fas {
+    display: inline;
+}
+
+.dropdown.is-fullwidth * {
+    width: 100%;
+}
+
+table.code {
+    width: 100%;
+    padding-top: 10px;
+    font-family: "Courier New", monospace;
+    font-size: 0.8em;
+    background-color: #edede9;
+    margin-bottom: 20px;
+}
+
+table.code td {
+    white-space: pre;
+    padding-left: 10px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+table.code td.percentage {
+    white-space: normal !important;
+    border-right: 1px solid #000000;
+    padding-right: 10px;
+    width: 90px;
+    text-align: right;
+}
+
+table.code td.percentage-danger {
+    color: #f94144;
+}
+
+table.code td.percentage-warning {
+    color: #f9844a;
+}
+
+table.operators {
+    width: 100%;
+    padding-top: 10px;
+    font-size: 0.8em;
+    background-color: #edede9;
+    margin-bottom: 20px;
+}
+
+table.operators td {
+    padding-left: 10px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+}
+
+table.operators td.percentage {
+    font-family: "Courier New", monospace;
+    border-right: 1px solid #000000;
+    padding-right: 10px;
+    width: 80px;
+    text-align: right;
+}
+
+table.operators td.percentage-danger {
+    color: #f94144;
+}
+
+table.operators td.percentage-warning {
+    color: #f9844a;
+}

@@ -1,0 +1,37 @@
+set(DB_PLAN_SRC
+    src/db/plan/logical/plan.cpp
+    src/db/plan/logical/cardinality_estimator.cpp
+    src/db/plan/logical/adjuster.cpp
+    src/db/plan/logical/node_child_iterator.cpp
+    src/db/plan/logical/adjustments/predicate_value_right_of_attribute_adjustment.cpp
+    src/db/plan/logical/adjustments/join_predicate_left_right_adjustment.cpp
+    src/db/plan/logical/adjustments/explicit_cast_adjustment.cpp
+    src/db/plan/logical/adjustments/add_arithmetic_node_for_aggregation_node_adjustment.cpp
+    src/db/plan/logical/adjustments/resolve_predicate_source_adjustment.cpp
+    src/db/plan/logical/adjustments/resolve_user_defined_function_adjustment.cpp
+    src/db/plan/physical/dataflow_graph.cpp
+    src/db/plan/physical/interpretation_graph.cpp
+    src/db/plan/physical/compilation_plan.cpp
+    src/db/plan/physical/compilation/join_planner.cpp
+    src/db/plan/physical/compilation_graph.cpp
+    src/db/plan/physical/radix_bit_calculator.cpp
+    src/db/plan/optimizer/plan_view.cpp
+    src/db/plan/optimizer/optimizer.cpp
+    src/db/plan/optimizer/cost_model.cpp
+    src/db/plan/optimizer/phases/rule_phases.cpp
+    src/db/plan/optimizer/phases/join_reordering_phase.cpp
+    src/db/plan/optimizer/rules/evaluate_predicate_rule.cpp
+    src/db/plan/optimizer/rules/remove_projection_rule.cpp
+    src/db/plan/optimizer/rules/predicate_push_down_rule.cpp
+    src/db/plan/optimizer/rules/merge_predicates_rule.cpp
+    src/db/plan/optimizer/rules/merge_table_selection_rule.cpp
+    src/db/plan/optimizer/rules/merge_order_by_limit_rule.cpp
+    src/db/plan/optimizer/rules/remove_fixed_value_cast_rule.cpp
+    src/db/plan/optimizer/rules/early_projection_rule.cpp
+    src/db/plan/optimizer/rules/arithmetic_push_down_rule.cpp
+    src/db/plan/optimizer/rules/split_arithmetic_rule.cpp
+    src/db/plan/optimizer/rules/pre_selection_rule.cpp
+    src/db/plan/optimizer/rules/condense_range_predicates_to_between_rule.cpp
+    src/db/plan/optimizer/rules/physical_operator_rule.cpp
+    src/db/plan/optimizer/rules/annotate_predicates_rule.cpp
+)

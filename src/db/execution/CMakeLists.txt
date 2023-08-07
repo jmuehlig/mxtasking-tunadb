@@ -1,0 +1,32 @@
+set(DB_EXECUTION_SRC
+    src/db/execution/gather_result_node.cpp
+    src/db/execution/interpretation/copy_node.cpp
+    src/db/execution/interpretation/deliver_node.cpp
+    src/db/execution/interpretation/update_statistics_node.cpp
+    src/db/execution/compilation/operator/scan_operator.cpp
+    src/db/execution/compilation/operator/selection_operator.cpp
+    src/db/execution/compilation/operator/arithmetic_operator.cpp
+    src/db/execution/compilation/operator/abstract_aggregation_operator.cpp
+    src/db/execution/compilation/operator/aggregation_operator.cpp
+    src/db/execution/compilation/operator/grouped_aggregation_operator.cpp
+    src/db/execution/compilation/operator/materialize_operator.cpp
+    src/db/execution/compilation/operator/hash_join_operator.cpp
+    src/db/execution/compilation/operator/partition_operator.cpp
+    src/db/execution/compilation/operator/partition_filter_operator.cpp
+    src/db/execution/compilation/operator/radix_join_operator.cpp
+    src/db/execution/compilation/operator/radix_aggregation_operator.cpp
+    src/db/execution/compilation/operator/limit_operator.cpp
+    src/db/execution/compilation/operator/buffer_operator.cpp
+    src/db/execution/compilation/operator/nested_loops_join_operator.cpp
+    src/db/execution/compilation/operator/user_defined_operator.cpp
+    src/db/execution/compilation/materializer.cpp
+    src/db/execution/compilation/compilation_node.cpp
+    src/db/execution/compilation/hash.cpp
+    src/db/execution/compilation/scan_loop.cpp
+    src/db/execution/compilation/profile_guided_optimizer.cpp
+    src/db/execution/compilation/expression.cpp
+    src/db/execution/compilation/key_comparator.cpp
+    src/db/execution/compilation/prefetcher.cpp
+    src/db/execution/compilation/hashtable/linear_probing_table.cpp
+    src/db/execution/compilation/hashtable/chained_table.cpp
+)
