@@ -1,0 +1,17 @@
+MACRO (FindAVX2)
+
+IF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    EXEC_PROGRAM(cat ARGS "/proc/cpuinfo" OUTPUT_VARIABLE CPUINFO)
+
+    STRING(REGEX REPLACE "^.*(avx2).*$" "\\1" AVX2_THERE ${CPUINFO})
+    STRING(COMPARE EQUAL "avx2" "${AVX2_THERE}" AVX2_TRUE)
+    IF (AVX2_TRUE)
+        set(AVX2_FOUND true CACHE BOOL "AVX2 available on host")
+    ELSE (AVX2_TRUE)
+        set(AVX2_FOUND false CACHE BOOL "AVX2 not available on host")
+    ENDIF (AVX2_TRUE)
+ELSE(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    set(AVX2_FOUND   false  CACHE BOOL "AVX2 not available on host")
+ENDIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
+
+ENDMACRO(FindAVX2)

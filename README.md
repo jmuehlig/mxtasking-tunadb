@@ -36,11 +36,11 @@ Please install the following dependencies
 ### Building
 #### Step 1: Clone the repository
 
-    git clone https://github.com/jmuehlig/tunadb.git
+    git clone https://github.com/jmuehlig/mxtasking-tunadb.git
 
 #### Step 2: Generate the `Makefile` using `cmake`
 
-    cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-13 -DCMAKE_CXX_COMPILER=clang++-13 
+    cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15 
 
 #### Step 3: Build `TunaDB`
 
@@ -96,15 +96,16 @@ The code is separated in four different branches:
 * [`src/perf`](src/flounder) includes an implementation of in-source perf counter and sampling.
 
 ## Further Applications
-Besides TunaDB, this repository includes further task-based applications used for other papers or development.
+Besides TunaDB, this repository includes further task-based applications used for papers or development.
 
 ### B-link-Tree Benchmark
 The folder [`src/application/blinktree_benchmark`](src/application/blinktree_benchmark) contains the benchmark code used in our paper _MxTasks: How to Make Efficient Synchronization and Prefetching Easy_.
 
 ### Radix Join Benchmark
 The folder [`src/application/radix_join_benchmark`](src/application/radix_join_benchmark) contains the benchmark code used in our paper _Micro Partitioning: Friendly to the Hardware and the Developer_.
+
 ### Task-based "Hello World"
-The folder [`src/application/hello_world`](src/application/hello_world) contains a task-based example for creating an spawning a simple task.
+The folder [`src/application/hello_world`](src/application/hello_world) contains a task-based example for creating and spawning a simple task.
 
 ## External Libraries
 TunaDB would not be possible without the help of various external libraries.

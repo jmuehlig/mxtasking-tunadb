@@ -11,5 +11,4 @@ count/
 xxhash/
 spdlog/
 tsl-robin-map/
-linenoise/
 asmjit/

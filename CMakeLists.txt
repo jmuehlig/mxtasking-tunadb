@@ -17,14 +17,11 @@ FindAVX2()
 
 # Set compile flags
 set(CMAKE_CXX_STANDARD 20)
-#set(CMAKE_CXX_CLANG_TIDY "clang-tidy;--extra-arg-before=-std=c++20 --system-headers=0") # TODO: Crashes with c++20
 set(CMAKE_CXX_FLAGS "-Werror \
  -Wno-invalid-offsetof -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization \
  -Winit-self -Wmissing-declarations -Wmissing-include-dirs -Woverloaded-virtual \
  -Wredundant-decls -Wsign-promo -Wstrict-overflow=5 -Wswitch-default -Wundef \
  -Wno-unused -Wno-uninitialized")
-# -Wshadow -Wformat=2 -Wcast-align   # TODO: Breaks asmjit
-# -Wold-style-cast      # TODO: Breaks bison generated files
 
 # Set compile flag for x86_64
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
@@ -143,15 +140,6 @@ ExternalProject_Add(
     CONFIGURE_COMMAND cmake -E echo ""
     BUILD_COMMAND cmake -E echo ""
 )
-ExternalProject_Add(
-        linenoise-external
-        GIT_REPOSITORY "https://github.com/antirez/linenoise.git"
-        GIT_TAG "93b2db9"
-        PREFIX "lib/linenoise"
-        INSTALL_COMMAND cmake -E echo ""
-        CONFIGURE_COMMAND cmake -E echo ""
-        BUILD_COMMAND cmake -E echo ""
-)
 
 # External libraries
 find_library(GTEST gtest)
@@ -171,8 +159,8 @@ include_directories(
     lib/xxhash/src/xxhash-external
     lib/spdlog/src/spdlog-external/include
     lib/tsl-robin-map/src/tsl-robin-map-external/include
-    lib/linenoise/src/linenoise-external
     lib/asmjit/src/asmjit-external/src
+    lib/linenoise
 )
 
 link_directories(lib/fmt/src/fmt-external-build lib/count/src/libcount-external)

@@ -22,6 +22,5 @@ SET(DB_SRC
     ${DB_STORAGE_SRC}
     ${DB_TYPE_SRC}
     ${DB_UTIL_SRC}
-    lib/linenoise/src/linenoise-external/linenoise.c
 )
 
